@@ -314,10 +314,10 @@ async function sendMessage() {
                 } else if (eventType === 'error') {
                     bubble.innerHTML = `<span class="text-danger">${escHtml(parsed.error ?? 'Unknown error')}</span>`;
                 } else if (eventType === 'done') {
-                    bubble.innerHTML = renderMarkdown(assistantContent);
+                    bubble.innerHTML = renderBubbleHtml(assistantContent, false);
                     addCopyButtons(bubble);
                     applyHighlighting(bubble);
-                    assistantDiv.dataset.markdown = assistantContent;
+                    assistantDiv.dataset.markdown = parseThinking(assistantContent).response || assistantContent;
                     addMessageCopyButtons(assistantDiv);
                 } else if (parsed.content !== undefined) {
                     if (firstChunk) {
@@ -325,7 +325,7 @@ async function sendMessage() {
                         firstChunk = false;
                     }
                     assistantContent += parsed.content;
-                    bubble.innerHTML = renderMarkdown(assistantContent);
+                    bubble.innerHTML = renderBubbleHtml(assistantContent, true);
                     if (!userScrolledUp) scrollToBottom();
                 }
             }
@@ -530,6 +530,40 @@ function highlightMatch(text, query) {
                .join('');
 }
 
+// ===== THINKING =====
+function parseThinking(raw) {
+    const complete = raw.match(/^<think>([\s\S]*?)<\/think>([\s\S]*)$/);
+    if (complete) {
+        return { thinking: complete[1].trim(), response: complete[2].trimStart(), incomplete: false };
+    }
+    if (raw.startsWith('<think>')) {
+        return { thinking: raw.slice(7), response: '', incomplete: true };
+    }
+    return { thinking: null, response: raw, incomplete: false };
+}
+
+function renderBubbleHtml(raw, streaming = false) {
+    const { thinking, response, incomplete } = parseThinking(raw);
+    let html = '';
+
+    if (thinking !== null) {
+        const inProgress = incomplete && streaming;
+        const label = inProgress ? 'Thinking…' : 'Thinking';
+        const cls   = inProgress ? ' thinking-in-progress' : '';
+        html += `<details class="thinking-block${cls}"${incomplete ? ' open' : ''}>
+            <summary class="thinking-summary">
+                <i class="bi bi-lightbulb-fill"></i>
+                <span class="thinking-summary-label">${label}</span>
+                <i class="bi bi-chevron-down thinking-chevron"></i>
+            </summary>
+            <div class="thinking-content">${renderMarkdown(thinking)}</div>
+        </details>`;
+    }
+
+    if (response) html += renderMarkdown(response);
+    return html;
+}
+
 // ===== HELPERS =====
 function appendMessage(role, content, animate = true) {
     const div = document.createElement('div');
@@ -540,11 +574,11 @@ function appendMessage(role, content, animate = true) {
     } else {
         const bubble = document.createElement('div');
         bubble.className = 'message-bubble';
-        bubble.innerHTML = renderMarkdown(content);
+        bubble.innerHTML = renderBubbleHtml(content, false);
         addCopyButtons(bubble);
         applyHighlighting(bubble);
         div.appendChild(bubble);
-        div.dataset.markdown = content;
+        div.dataset.markdown = parseThinking(content).response || content;
         addMessageCopyButtons(div);
     }
 

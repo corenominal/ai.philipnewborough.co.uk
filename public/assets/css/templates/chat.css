@@ -257,6 +257,57 @@ pre:hover .copy-code-btn {
     transform: scale(0.92);
 }
 
+/* ===== THINKING BLOCK ===== */
+.thinking-block {
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+}
+
+.thinking-summary {
+    list-style: none;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.thinking-summary::-webkit-details-marker { display: none; }
+
+.thinking-chevron {
+    margin-left: auto;
+    font-size: 0.75rem;
+    transition: transform 0.2s ease;
+}
+
+.thinking-block[open] .thinking-chevron {
+    transform: rotate(180deg);
+}
+
+.thinking-content {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: var(--bs-secondary-color);
+    border-top: 1px solid var(--bs-border-color-translucent);
+    line-height: 1.6;
+}
+
+.thinking-content p:last-child { margin-bottom: 0; }
+
+.thinking-in-progress .thinking-summary-label {
+    animation: thinkingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes thinkingPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
 /* ===== SEARCH MODAL ===== */
 .search-modal-dialog {
     max-width: 620px;
