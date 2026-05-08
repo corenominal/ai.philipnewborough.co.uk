@@ -1,0 +1,4 @@
+/* Page-level overrides for the chat view */
+#messages-area {
+    scroll-behavior: smooth;
+}
