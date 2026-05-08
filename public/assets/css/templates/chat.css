@@ -54,7 +54,9 @@
     font-size: 0.95rem;
     color: var(--bs-secondary-color);
     opacity: 0.7;
-    transition: opacity 0.1s ease, background-color 0.1s ease;
+    transition:
+        opacity 0.1s ease,
+        background-color 0.1s ease;
     padding: 0;
     border: 0;
     background: transparent;
@@ -120,8 +122,14 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* User messages */
@@ -131,8 +139,8 @@
 }
 
 .message-user .message-bubble {
-    background-color: var(--bs-primary);
-    color: var(--bs-dark);
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
     border-radius: 18px 18px 4px 18px;
     padding: 10px 16px;
     max-width: 75%;
@@ -171,7 +179,7 @@
 }
 
 .message-meta span + span::before {
-    content: '·';
+    content: "·";
     margin: 0 6px;
 }
 
@@ -274,13 +282,27 @@ pre:hover .copy-code-btn {
     animation: typingBounce 1.2s infinite ease-in-out;
 }
 
-.typing-indicator span:nth-child(1) { animation-delay: 0s; }
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+.typing-indicator span:nth-child(1) {
+    animation-delay: 0s;
+}
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
 
 @keyframes typingBounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30%            { transform: translateY(-6px); opacity: 1; }
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+    30% {
+        transform: translateY(-6px);
+        opacity: 1;
+    }
 }
 
 /* ===== INPUT AREA ===== */
@@ -342,7 +364,9 @@ pre:hover .copy-code-btn {
     gap: 6px;
 }
 
-.thinking-summary::-webkit-details-marker { display: none; }
+.thinking-summary::-webkit-details-marker {
+    display: none;
+}
 
 .thinking-chevron {
     margin-left: auto;
@@ -362,15 +386,22 @@ pre:hover .copy-code-btn {
     line-height: 1.6;
 }
 
-.thinking-content p:last-child { margin-bottom: 0; }
+.thinking-content p:last-child {
+    margin-bottom: 0;
+}
 
 .thinking-in-progress .thinking-summary-label {
     animation: thinkingPulse 1.5s ease-in-out infinite;
 }
 
 @keyframes thinkingPulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
 }
 
 /* ===== SEARCH MODAL ===== */
