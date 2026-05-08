@@ -2,90 +2,36 @@
 
 namespace App\Controllers\Admin;
 
-use Hermawan\DataTables\DataTable;
-use App\Models\ExampleModel;
+use App\Models\ChatSessionModel;
+use App\Models\ChatMessageModel;
 
 class Home extends BaseController
 {
-    /**
-     * Display the Admin Dashboard page.
-     *
-     * Prepares view data for the dashboard, including:
-     * - Datatables feature flag
-     * - JavaScript asset list
-     * - CSS asset list
-     * - Page title
-     *
-     * @return string Rendered admin dashboard view output.
-     */
     public function index()
     {
-        // Datatables flag
-        $data['datatables'] = true;
-        // Array of javascript files to include
-        $data['js'] = ['admin/home'];
-        // Array of CSS files to include
-        $data['css'] = ['admin/home'];
-        // Set the page title
-        $data['title'] = 'Admin Dashboard';    
-        return view('admin/home', $data);
-    }
+        $sessions = new ChatSessionModel();
+        $messages = new ChatMessageModel();
 
-    /**
-     * Server-side DataTables endpoint for the example table.
-     *
-     * @return \CodeIgniter\HTTP\ResponseInterface JSON response for DataTables.
-     */
-    public function datatable()
-    {
-        $model   = new ExampleModel();
-        $builder = $model->builder()->where('deleted_at IS NULL');
+        $sessionCount = $sessions->countAll();
+        $messageCount = $messages->countAll();
+        $pinnedCount  = $sessions->where('pinned', 1)->countAllResults();
 
-        $statusFilter = $this->request->getGet('status_filter');
-        if (!empty($statusFilter)) {
-            $builder->where('status', $statusFilter);
-        }
-
-        $statusMap = [
-            'Active'   => 'success',
-            'Inactive' => 'warning',
-            'Banned'   => 'danger',
+        $data['stats'] = [
+            'sessions' => $sessionCount,
+            'messages' => $messageCount,
+            'pinned'   => $pinnedCount,
+            'avg'      => $sessionCount > 0 ? round($messageCount / $sessionCount, 1) : 0,
         ];
 
-        return DataTable::of($builder)
-            ->edit('status', function($row) use ($statusMap) {
-                $colour = $statusMap[$row->status] ?? 'secondary';
-                return '<span class="badge text-bg-' . $colour . '">' . esc($row->status) . '</span>';
-            })
-            ->toJson(true);
-    }
+        $data['recent_sessions'] = $sessions
+            ->orderBy('created_at', 'DESC')
+            ->limit(8)
+            ->find();
 
-    /**
-     * Delete selected records (soft delete).
-     *
-     * @return \CodeIgniter\HTTP\ResponseInterface
-     */
-    public function delete()
-    {
-        $json = $this->request->getJSON(true);
-        $ids  = $json['ids'] ?? [];
+        $data['js']    = ['admin/home'];
+        $data['css']   = ['admin/home'];
+        $data['title'] = 'Admin Dashboard';
 
-        // Sanitise: keep only positive integers
-        $ids = array_values(array_filter(array_map('intval', $ids), fn($id) => $id > 0));
-
-        if (empty($ids)) {
-            return $this->response->setStatusCode(400)->setJSON([
-                'status'  => 'error',
-                'message' => 'No valid IDs provided.',
-            ]);
-        }
-
-        $model = new ExampleModel();
-        $model->whereIn('id', $ids)->delete();
-
-        return $this->response->setJSON([
-            'status'  => 'success',
-            'deleted' => count($ids),
-        ]);
+        return view('admin/home', $data);
     }
 }
