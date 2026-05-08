@@ -7,6 +7,17 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+// Chat session deep link (must be before chat API routes)
+$routes->get('/chat/api/models', 'ChatApi::models');
+$routes->get('/chat/api/search', 'ChatApi::search');
+$routes->get('/chat/api/sessions', 'ChatApi::sessions');
+$routes->post('/chat/api/session', 'ChatApi::createSession');
+$routes->patch('/chat/api/session/(:segment)', 'ChatApi::updateSession/$1');
+$routes->delete('/chat/api/session/(:segment)', 'ChatApi::deleteSession/$1');
+$routes->get('/chat/api/messages/(:segment)', 'ChatApi::messages/$1');
+$routes->post('/chat/api/stream', 'ChatApi::stream');
+$routes->get('/chat/(:segment)', 'Home::chatSession/$1');
+
 // Admin routes
 $routes->get('/admin', 'Admin\Home::index');
 $routes->get('/admin/datatable', 'Admin\Home::datatable');
