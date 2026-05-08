@@ -26,7 +26,7 @@ class Filters extends BaseFilters
      * Keep in sync with OPTIONAL_AUTH_ROUTES if public-facing routes are added.
      */
     private const AUTH_EXCEPTIONS = [
-        '/',
+        // '/',
         'metrics/receive',
         'cli/*',
         'api/*',

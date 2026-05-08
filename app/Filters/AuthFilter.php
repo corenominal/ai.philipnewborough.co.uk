@@ -98,13 +98,13 @@ class AuthFilter implements FilterInterface
             $session->set($data);
         }
 
-        // // This site is only for admins
-        // if(!$session->get('is_admin')){
-        //     // Destroy session any existing session data
-        //     $session->destroy();
-        //     // Redirect to login page if cookie is not set
-        //     return redirect()->to('/unauthorised');
-        // }
+        // This site is only for admins
+        if(!$session->get('is_admin')){
+            // Destroy session any existing session data
+            $session->destroy();
+            // Redirect to login page if cookie is not set
+            return redirect()->to('/unauthorised');
+        }
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
