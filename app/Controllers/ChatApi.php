@@ -295,10 +295,17 @@ class ChatApi extends BaseController
                 $messageModel->insert([
                     'session_id' => $session['id'],
                     'role'       => 'assistant',
+                    'model'      => $session['model'],
                     'content'    => $fullResponse,
                 ]);
 
-                echo "event: done\ndata: " . json_encode(['done' => true]) . "\n\n";
+                $saved = $messageModel->find($messageModel->getInsertID());
+
+                echo "event: done\ndata: " . json_encode([
+                    'done'       => true,
+                    'model'      => $saved['model'],
+                    'created_at' => $saved['created_at'],
+                ]) . "\n\n";
                 flush();
                 break;
             }

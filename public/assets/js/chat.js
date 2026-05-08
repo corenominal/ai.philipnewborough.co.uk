@@ -233,7 +233,7 @@ function renderMessages(messages) {
     chatThread.classList.remove('d-none');
     chatThread.innerHTML = '';
 
-    messages.forEach(msg => appendMessage(msg.role, msg.content, false));
+    messages.forEach(msg => appendMessage(msg.role, msg.content, false, { model: msg.model, created_at: msg.created_at }));
     scrollToBottom(true);
 }
 
@@ -318,7 +318,7 @@ async function sendMessage() {
                     addCopyButtons(bubble);
                     applyHighlighting(bubble);
                     assistantDiv.dataset.markdown = parseThinking(assistantContent).response || assistantContent;
-                    addMessageCopyButtons(assistantDiv);
+                    appendMessageFooter(assistantDiv, { model: parsed.model, created_at: parsed.created_at });
                 } else if (parsed.content !== undefined) {
                     if (firstChunk) {
                         bubble.innerHTML = '';
@@ -565,7 +565,7 @@ function renderBubbleHtml(raw, streaming = false) {
 }
 
 // ===== HELPERS =====
-function appendMessage(role, content, animate = true) {
+function appendMessage(role, content, animate = true, meta = null) {
     const div = document.createElement('div');
     div.className = `message message-${role}`;
 
@@ -579,7 +579,7 @@ function appendMessage(role, content, animate = true) {
         applyHighlighting(bubble);
         div.appendChild(bubble);
         div.dataset.markdown = parseThinking(content).response || content;
-        addMessageCopyButtons(div);
+        appendMessageFooter(div, meta);
     }
 
     chatThread.appendChild(div);
@@ -611,11 +611,34 @@ function addCopyButtons(container) {
     });
 }
 
-function addMessageCopyButtons(messageDiv) {
+function appendMessageFooter(messageDiv, meta = null) {
+    const footer  = document.createElement('div');
+    footer.className = 'message-footer';
+
+    const metaEl = document.createElement('div');
+    metaEl.className = 'message-meta';
+    if (meta?.model) {
+        const s = document.createElement('span');
+        s.textContent = meta.model;
+        metaEl.appendChild(s);
+    }
+    if (meta?.created_at) {
+        const d = new Date(String(meta.created_at).replace(' ', 'T'));
+        const s = document.createElement('span');
+        s.textContent = d.toLocaleString('en-GB', {
+            day: 'numeric', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+        });
+        metaEl.appendChild(s);
+    }
+    footer.appendChild(metaEl);
+
     const actions = document.createElement('div');
     actions.className = 'message-actions';
     actions.appendChild(createCopyBtn('bi-clipboard', 'Copy Markdown', () => messageDiv.dataset.markdown ?? ''));
-    messageDiv.appendChild(actions);
+    footer.appendChild(actions);
+
+    messageDiv.appendChild(footer);
 }
 
 function createCopyBtn(icon, label, getContent) {
