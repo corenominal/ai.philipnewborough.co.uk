@@ -20,6 +20,9 @@ $routes->get('/chat/(:segment)', 'Home::chatSession/$1');
 
 // Admin routes
 $routes->get('/admin', 'Admin\Home::index');
+$routes->get('/admin/prompt', 'Admin\Prompt::index');
+$routes->post('/admin/prompt/update', 'Admin\Prompt::update');
+$routes->post('/admin/prompt/revert/(:num)', 'Admin\Prompt::revert/$1');
 
 // API routes
 $routes->match(['get', 'options'], '/api/test/ping', 'Api\Test::ping');

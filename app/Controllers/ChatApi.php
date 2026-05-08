@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ChatSessionModel;
 use App\Models\ChatMessageModel;
+use App\Models\SystemPromptModel;
 
 class ChatApi extends BaseController
 {
@@ -251,8 +252,12 @@ class ChatApi extends BaseController
         echo "event: session\ndata: " . json_encode(['uuid' => $sessionUuid, 'title' => $session['title']]) . "\n\n";
         flush();
 
-        $ollamaIp = config('Ollama')->ip;
-        $payload  = json_encode([
+        $ollamaIp     = config('Ollama')->ip;
+        $activePrompt = (new SystemPromptModel())->getActive();
+        if ($activePrompt && $activePrompt['content'] !== '') {
+            array_unshift($messages, ['role' => 'system', 'content' => $activePrompt['content']]);
+        }
+        $payload = json_encode([
             'model'    => $session['model'],
             'messages' => $messages,
             'stream'   => true,
