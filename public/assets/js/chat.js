@@ -146,15 +146,21 @@ function buildSessionItem(session) {
             ${pinHtml}
             <span class="chat-item-title flex-grow-1">${escHtml(session.title)}</span>
             <div class="chat-item-actions ms-1">
-                <button class="btn text-secondary btn-sm pin-btn" data-uuid="${escHtml(session.uuid)}" title="${session.pinned ? 'Unpin' : 'Pin'}">
-                    <i class="bi bi-pin${session.pinned ? '-fill text-warning' : ''}"></i>
+                <button class="btn btn-sm chat-item-menu-btn" type="button" aria-haspopup="true" aria-expanded="false" title="More actions">
+                    <i class="bi bi-three-dots-vertical"></i>
                 </button>
-                <button class="btn text-secondary btn-sm rename-btn" data-uuid="${escHtml(session.uuid)}" title="Rename">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn text-danger btn-sm delete-btn" data-uuid="${escHtml(session.uuid)}" title="Delete">
-                    <i class="bi bi-trash"></i>
-                </button>
+                <div class="chat-item-menu" role="menu">
+                    <button class="chat-item-menu-item pin-btn" type="button" role="menuitem">
+                        <i class="bi bi-pin${session.pinned ? '-fill text-warning' : ''} me-2"></i>${session.pinned ? 'Unpin' : 'Pin'}
+                    </button>
+                    <button class="chat-item-menu-item rename-btn" type="button" role="menuitem">
+                        <i class="bi bi-pencil me-2"></i>Rename
+                    </button>
+                    <div class="chat-item-menu-divider"></div>
+                    <button class="chat-item-menu-item text-danger delete-btn" type="button" role="menuitem">
+                        <i class="bi bi-trash me-2"></i>Delete
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -167,23 +173,80 @@ function buildSessionItem(session) {
         offcanvas?.hide();
     });
 
+    const menuBtn = item.querySelector('.chat-item-menu-btn');
+    const menu    = item.querySelector('.chat-item-menu');
+
+    menuBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const isOpen = menu.classList.contains('show');
+        closeAllChatItemMenus();
+        if (!isOpen) openChatItemMenu(menuBtn, menu);
+    });
+
     item.querySelector('.pin-btn').addEventListener('click', e => {
         e.stopPropagation();
+        closeAllChatItemMenus();
         togglePin(session.uuid, session.pinned);
     });
 
     item.querySelector('.rename-btn').addEventListener('click', e => {
         e.stopPropagation();
+        closeAllChatItemMenus();
         renameSession(session.uuid, session.title);
     });
 
     item.querySelector('.delete-btn').addEventListener('click', e => {
         e.stopPropagation();
+        closeAllChatItemMenus();
         deleteSession(session.uuid);
     });
 
     return item;
 }
+
+function openChatItemMenu(btn, menu) {
+    document.body.appendChild(menu);
+    menu.classList.add('show');
+    btn.setAttribute('aria-expanded', 'true');
+
+    const rect = btn.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    let top  = rect.bottom + 4;
+    let left = rect.right - menuRect.width;
+    if (left < 8) left = 8;
+    if (top + menuRect.height > window.innerHeight - 8) {
+        top = rect.top - menuRect.height - 4;
+    }
+    menu.style.top  = `${top}px`;
+    menu.style.left = `${left}px`;
+
+    menu._ownerBtn = btn;
+}
+
+function closeAllChatItemMenus() {
+    document.querySelectorAll('.chat-item-menu.show').forEach(menu => {
+        menu.classList.remove('show');
+        menu.style.top  = '';
+        menu.style.left = '';
+        if (menu._ownerBtn) {
+            menu._ownerBtn.setAttribute('aria-expanded', 'false');
+            const actions = menu._ownerBtn.closest('.chat-item-actions');
+            if (actions) actions.appendChild(menu);
+            menu._ownerBtn = null;
+        }
+    });
+}
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.chat-item-menu') && !e.target.closest('.chat-item-menu-btn')) {
+        closeAllChatItemMenus();
+    }
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAllChatItemMenus();
+});
+window.addEventListener('resize', closeAllChatItemMenus);
+window.addEventListener('scroll', closeAllChatItemMenus, true);
 
 function groupByDate(sessions) {
     const now       = new Date();
