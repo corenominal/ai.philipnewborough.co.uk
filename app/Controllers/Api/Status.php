@@ -21,6 +21,7 @@ class Status extends BaseController
 Rewrite the following in 5 alternative versions.
 Do not use any markdown formatting in the versions.
 Each version should not exceed 500 characters.
+Do not use m dashes or numbering in the response.
 Keep the meaning intact.
 Make it clear, natural, and concise.
 Avoid hype, clichés, and corporate tone.{$expandLine}
