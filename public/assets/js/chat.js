@@ -833,6 +833,31 @@ function updateSendBtn() {
     }
 }
 
+// ===== LIGHTBOX =====
+function openLightbox(src) {
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox-overlay';
+    overlay.innerHTML = `<img class="lightbox-img" src="${escHtml(src)}" alt="Image">`;
+
+    function close() {
+        document.removeEventListener('keydown', onKey);
+        overlay.remove();
+    }
+
+    function onKey(e) {
+        if (e.key === 'Escape') close();
+    }
+
+    overlay.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(overlay);
+}
+
+document.addEventListener('click', e => {
+    const img = e.target.closest('.message-image');
+    if (img) openLightbox(img.src);
+});
+
 function escHtml(str) {
     return String(str)
         .replace(/&/g, '&amp;')
