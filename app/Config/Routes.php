@@ -32,6 +32,7 @@ $routes->match(['post', 'options'], '/api/images/alttext', 'Api\Images::alttext'
 $routes->match(['post', 'options'], '/api/images/describe', 'Api\Images::describe');
 $routes->match(['post', 'options'], '/api/blog/analyse', 'Api\Blog::analyse');
 $routes->match(['post', 'options'], '/api/blog/rewrite', 'Api\Blog::rewrite');
+$routes->match(['post', 'options'], '/api/blog/excerpt', 'Api\Blog::excerpt');
 
 // Command line routes
 $routes->cli('cli/test/index/(:segment)', 'CLI\Test::index/$1');

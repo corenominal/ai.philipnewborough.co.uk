@@ -21,6 +21,7 @@
                     <ul class="list-unstyled ms-3 mt-1">
                         <li class="py-1"><a href="#blog-analyse" class="text-decoration-none font-monospace small">POST /api/blog/analyse</a></li>
                         <li class="py-1"><a href="#blog-rewrite" class="text-decoration-none font-monospace small">POST /api/blog/rewrite</a></li>
+                        <li class="py-1"><a href="#blog-excerpt" class="text-decoration-none font-monospace small">POST /api/blog/excerpt</a></li>
                     </ul>
                 </li>
                 <li class="py-1">
@@ -239,6 +240,85 @@
             <pre class="rounded p-3 mb-4 text-wrap"><code>{
   "title": "My thoughts on PHP",
   "content": "PHP is sometimes underrated. I've been using it for years and find it really versatile..."
+}</code></pre>
+        </div>
+    </div>
+
+    <!-- POST /api/blog/excerpt -->
+    <div id="blog-excerpt" class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-primary font-monospace fs-6">POST</span>
+            <code class="fs-6">/api/blog/excerpt</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Generates an excerpt for a blog post using Ollama. The excerpt matches the author's original style and voice and is written as a natural teaser rather than a direct copy of opening sentences. Useful for post listing pages, RSS feeds, and social previews.</p>
+
+            <h6 class="fw-semibold mt-3 mb-2">Request body <span class="badge text-bg-secondary fw-normal ms-1">application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:120px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th style="width:100px">Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">content</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-danger">Yes</span></td>
+                        <td>The full body text of the blog post. Plain text or HTML are both accepted.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">title</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>The title of the blog post. Including it helps the model produce a more focused excerpt.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">length</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Controls the length of the excerpt. Accepted values: <code>short</code> (one sentence), <code>medium</code> (2–3 sentences, default), <code>long</code> (4–5 sentences).</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">model</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Ollama model to use. Defaults to <code>llama3.2</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">excerpt</td>
+                        <td class="text-secondary">string</td>
+                        <td>The generated excerpt.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/blog/excerpt \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d '{"title": "Getting started with CodeIgniter 4", "content": "CodeIgniter 4 is a lightweight PHP framework...", "length": "short"}' \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "excerpt": "If you've been looking for a PHP framework that gets out of your way, CodeIgniter 4 might be exactly what you need."
 }</code></pre>
         </div>
     </div>

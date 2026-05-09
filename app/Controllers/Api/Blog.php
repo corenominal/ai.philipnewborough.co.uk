@@ -134,4 +134,70 @@ PROMPT;
 
         return $this->response->setJSON($output);
     }
+
+    public function excerpt(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $body    = $this->request->getJSON(true) ?? [];
+        $content = trim($body['content'] ?? '');
+        $title   = trim($body['title'] ?? '');
+        $model   = $body['model'] ?? 'llama3.2';
+        $length  = trim($body['length'] ?? 'medium');
+
+        if (empty($content)) {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'No content provided.']);
+        }
+
+        $lengths = [
+            'short'  => 'one sentence',
+            'medium' => 'two to three sentences',
+            'long'   => 'a short paragraph of four to five sentences',
+        ];
+
+        if (!array_key_exists($length, $lengths)) {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid length. Must be short, medium, or long.']);
+        }
+
+        $titleLine = $title ? "\nTitle: {$title}" : '';
+
+        $prompt = <<<PROMPT
+Write an excerpt for the following blog post. The excerpt should be {$lengths[$length]} long, capture the essence of the post, and match the author's original style, voice, and tone. It should read as a natural teaser that draws the reader in — do not copy sentences verbatim from the post. The excerpt must be plain text only: no markdown, no bold, no italics, no headings, no bullet points, no quotation marks, no special characters.
+
+Respond only with valid JSON in this exact format: {"excerpt": "..."}{$titleLine}
+
+Content:
+{$content}
+PROMPT;
+
+        $ollamaIp = config('Ollama')->ip;
+        $payload  = json_encode([
+            'model'  => $model,
+            'prompt' => $prompt,
+            'format' => 'json',
+            'stream' => false,
+        ]);
+
+        $context = stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => "Content-Type: application/json\r\n",
+                'content' => $payload,
+                'timeout' => 60,
+            ],
+        ]);
+
+        $result = @file_get_contents("http://{$ollamaIp}:11434/api/generate", false, $context);
+
+        if ($result === false) {
+            return $this->response->setStatusCode(502)->setJSON(['error' => 'Failed to connect to Ollama.']);
+        }
+
+        $data     = json_decode($result, true);
+        $response = json_decode($data['response'] ?? '{}', true);
+
+        if (empty($response['excerpt'])) {
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'Unexpected response from Ollama.']);
+        }
+
+        return $this->response->setJSON(['excerpt' => $response['excerpt']]);
+    }
 }
