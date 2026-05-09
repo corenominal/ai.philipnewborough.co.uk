@@ -21,11 +21,13 @@ $routes->get('/chat/(:segment)', 'Home::chatSession/$1');
 // Admin routes
 $routes->get('/admin', 'Admin\Home::index');
 $routes->get('/admin/prompt', 'Admin\Prompt::index');
+$routes->get('/admin/api', 'Admin\Api::index');
 $routes->post('/admin/prompt/update', 'Admin\Prompt::update');
 $routes->post('/admin/prompt/revert/(:num)', 'Admin\Prompt::revert/$1');
 
 // API routes
 $routes->match(['get', 'options'], '/api/test/ping', 'Api\Test::ping');
+$routes->post('/api/status/rewrite', 'Api\Status::rewrite');
 
 // Command line routes
 $routes->cli('cli/test/index/(:segment)', 'CLI\Test::index/$1');
