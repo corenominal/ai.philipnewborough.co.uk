@@ -5,6 +5,8 @@ let currentSessionUuid = null;
 let isStreaming         = false;
 let userScrolledUp     = false;
 let pendingImages      = []; // [{dataUrl, base64, name}]
+let lastSentMessage    = '';
+let lastSentImages     = [];
 
 // ===== DOM REFS =====
 let messagesArea, chatThread, welcomeScreen;
@@ -305,6 +307,12 @@ function renderMessages(messages) {
     chatThread.innerHTML = '';
 
     messages.forEach(msg => appendMessage(msg.role, msg.content, false, { model: msg.model, created_at: msg.created_at }, msg.images || []));
+
+    const last = messages[messages.length - 1];
+    if (last && last.role === 'user') {
+        appendSessionRetryPrompt(last.content);
+    }
+
     scrollToBottom(true);
 }
 
@@ -320,6 +328,9 @@ async function sendMessage() {
     const imagesToSend = [...pendingImages];
     pendingImages = [];
     renderImagePreview();
+
+    lastSentMessage = message;
+    lastSentImages  = [...imagesToSend];
 
     messageInput.value = '';
     autoResizeTextarea();
@@ -352,7 +363,7 @@ async function sendMessage() {
         });
 
         if (!response.ok || !response.body) {
-            bubble.innerHTML = '<span class="text-danger">Request failed.</span>';
+            showNetworkError(bubble, assistantDiv, 'Request failed.');
             return;
         }
 
@@ -410,7 +421,7 @@ async function sendMessage() {
             }
         }
     } catch (e) {
-        bubble.innerHTML = `<span class="text-danger">Error: ${escHtml(e.message)}</span>`;
+        showNetworkError(bubble, assistantDiv, `Error: ${escHtml(e.message)}`);
     } finally {
         isStreaming = false;
         updateSendBtn();
@@ -857,6 +868,52 @@ document.addEventListener('click', e => {
     const img = e.target.closest('.message-image');
     if (img) openLightbox(img.src);
 });
+
+// ===== RETRY =====
+function showNetworkError(bubble, assistantDiv, message) {
+    bubble.innerHTML = `<div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="text-danger">${message}</span>
+        <button class="btn btn-sm btn-outline-secondary retry-btn" type="button">
+            <i class="bi bi-arrow-clockwise me-1"></i>Retry
+        </button>
+    </div>`;
+    bubble.querySelector('.retry-btn').addEventListener('click', () => retryMessage(assistantDiv));
+}
+
+function retryMessage(assistantDiv) {
+    const userDiv = assistantDiv.previousElementSibling;
+    if (userDiv?.classList.contains('message-user')) userDiv.remove();
+    assistantDiv.remove();
+    messageInput.value = lastSentMessage;
+    pendingImages = [...lastSentImages];
+    renderImagePreview();
+    autoResizeTextarea();
+    updateSendBtn();
+    sendMessage();
+}
+
+function appendSessionRetryPrompt(userContent) {
+    const div = document.createElement('div');
+    div.className = 'message message-assistant';
+    div.innerHTML = `<div class="message-bubble">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="text-secondary">The last response didn't complete.</span>
+            <button class="btn btn-sm btn-outline-secondary retry-session-btn" type="button">
+                <i class="bi bi-arrow-clockwise me-1"></i>Retry
+            </button>
+        </div>
+    </div>`;
+    div.querySelector('.retry-session-btn').addEventListener('click', () => {
+        div.remove();
+        const lastUserDiv = chatThread.lastElementChild;
+        if (lastUserDiv?.classList.contains('message-user')) lastUserDiv.remove();
+        messageInput.value = userContent;
+        autoResizeTextarea();
+        updateSendBtn();
+        sendMessage();
+    });
+    chatThread.appendChild(div);
+}
 
 function escHtml(str) {
     return String(str)
