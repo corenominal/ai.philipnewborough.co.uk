@@ -22,6 +22,7 @@
                         <li class="py-1"><a href="#blog-analyse" class="text-decoration-none font-monospace small">POST /api/blog/analyse</a></li>
                         <li class="py-1"><a href="#blog-rewrite" class="text-decoration-none font-monospace small">POST /api/blog/rewrite</a></li>
                         <li class="py-1"><a href="#blog-excerpt" class="text-decoration-none font-monospace small">POST /api/blog/excerpt</a></li>
+                        <li class="py-1"><a href="#blog-outline" class="text-decoration-none font-monospace small">POST /api/blog/outline</a></li>
                     </ul>
                 </li>
                 <li class="py-1">
@@ -325,6 +326,116 @@
             <h6 class="fw-semibold mb-2">Example response</h6>
             <pre class="rounded p-3 mb-4 text-wrap"><code>{
   "excerpt": "If you've been looking for a PHP framework that gets out of your way, CodeIgniter 4 might be exactly what you need."
+}</code></pre>
+        </div>
+    </div>
+
+    <!-- POST /api/blog/outline -->
+    <div id="blog-outline" class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-primary font-monospace fs-6">POST</span>
+            <code class="fs-6">/api/blog/outline</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Generates a suggested structure for a blog post based on a given topic or working title. Returns a hierarchy of H2 sections with optional H3 subheadings, suitable for use as a writing plan before drafting begins.</p>
+
+            <h6 class="fw-semibold mt-3 mb-2">Request body <span class="badge text-bg-secondary fw-normal ms-1">application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:120px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th style="width:100px">Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">topic</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-danger">Yes</span></td>
+                        <td>The topic or working title of the blog post.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">model</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Ollama model to use. Defaults to <code>llama3.2</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">outline</td>
+                        <td class="text-secondary">object[]</td>
+                        <td>An array of 4–8 sections. Each object has a <code>heading</code> (H2 text) and a <code>subheadings</code> array of H3 strings (empty if the section needs none).</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/blog/outline \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d '{"topic": "Getting started with CodeIgniter 4"}' \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "outline": [
+    {
+      "heading": "What is CodeIgniter 4",
+      "subheadings": []
+    },
+    {
+      "heading": "Installation",
+      "subheadings": [
+        "System requirements",
+        "Installing via Composer",
+        "Setting up the environment file"
+      ]
+    },
+    {
+      "heading": "Understanding the project structure",
+      "subheadings": []
+    },
+    {
+      "heading": "Routing basics",
+      "subheadings": [
+        "Defining routes",
+        "Route parameters"
+      ]
+    },
+    {
+      "heading": "Creating your first controller",
+      "subheadings": []
+    },
+    {
+      "heading": "Working with views",
+      "subheadings": []
+    },
+    {
+      "heading": "Connecting to a database",
+      "subheadings": [
+        "Configuration",
+        "Running your first query"
+      ]
+    },
+    {
+      "heading": "Next steps",
+      "subheadings": []
+    }
+  ]
 }</code></pre>
         </div>
     </div>

@@ -200,4 +200,58 @@ PROMPT;
 
         return $this->response->setJSON(['excerpt' => $response['excerpt']]);
     }
+
+    public function outline(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $body  = $this->request->getJSON(true) ?? [];
+        $topic = trim($body['topic'] ?? '');
+        $model = $body['model'] ?? 'llama3.2';
+
+        if (empty($topic)) {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'No topic provided.']);
+        }
+
+        $prompt = <<<PROMPT
+Suggest a blog post outline for the following topic or working title. Return a logical structure of H2 sections, each with optional H3 subheadings where they add value. Keep headings concise and clear — plain text only, no markdown symbols, no numbering.
+
+Respond only with valid JSON in this exact format:
+{"outline": [{"heading": "...", "subheadings": ["...", "..."]}, ...]}
+
+Use an empty array for subheadings when a section does not need them. Provide between 4 and 8 top-level sections.
+
+Topic: {$topic}
+PROMPT;
+
+        $ollamaIp = config('Ollama')->ip;
+        $payload  = json_encode([
+            'model'  => $model,
+            'prompt' => $prompt,
+            'format' => 'json',
+            'stream' => false,
+        ]);
+
+        $context = stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => "Content-Type: application/json\r\n",
+                'content' => $payload,
+                'timeout' => 60,
+            ],
+        ]);
+
+        $result = @file_get_contents("http://{$ollamaIp}:11434/api/generate", false, $context);
+
+        if ($result === false) {
+            return $this->response->setStatusCode(502)->setJSON(['error' => 'Failed to connect to Ollama.']);
+        }
+
+        $data     = json_decode($result, true);
+        $response = json_decode($data['response'] ?? '{}', true);
+
+        if (empty($response['outline']) || !is_array($response['outline'])) {
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'Unexpected response from Ollama.']);
+        }
+
+        return $this->response->setJSON(['outline' => array_values($response['outline'])]);
+    }
 }
