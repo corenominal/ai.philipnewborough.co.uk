@@ -116,6 +116,80 @@
         </div>
     </div>
 
+    <!-- POST /api/images/describe -->
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-primary font-monospace fs-6">POST</span>
+            <code class="fs-6">/api/images/describe</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Returns a detailed description of an image using a vision model via Ollama. Accepts either a publicly accessible image URL or a base64-encoded image. Unlike the alt text endpoint, no length or formatting constraints are applied — the model describes the image freely.</p>
+
+            <h6 class="fw-semibold mt-3 mb-2">Request body <span class="badge text-bg-secondary fw-normal ms-1">application/json</span></h6>
+            <p class="text-secondary small mb-2">Provide either <code>url</code> or <code>image</code> — at least one is required.</p>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:120px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th style="width:100px">Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">url</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-warning text-dark">Either</span></td>
+                        <td>A publicly accessible URL of the image to describe. Must use <code>http</code> or <code>https</code>.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">image</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-warning text-dark">Either</span></td>
+                        <td>A base64-encoded image. Data URI prefix (e.g. <code>data:image/png;base64,</code>) is accepted and stripped automatically.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">model</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Ollama vision model to use. Defaults to <code>llama3.2-vision</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">description</td>
+                        <td class="text-secondary">string</td>
+                        <td>A detailed description of the image.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request — URL</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/images/describe \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d '{"url": "https://example.com/photo.jpg"}' \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "description": "The image shows a tabby cat with orange and grey striped fur sitting on a wide wooden windowsill. The cat is facing away from the camera, gazing out through a rain-speckled window at a quiet residential street below. The scene is overcast, giving the image a calm, contemplative mood."
+}</code></pre>
+        </div>
+    </div>
+
     <!-- Status endpoints -->
     <h5 class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Status</h5>
 

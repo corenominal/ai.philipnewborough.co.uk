@@ -29,6 +29,7 @@ $routes->post('/admin/prompt/revert/(:num)', 'Admin\Prompt::revert/$1');
 $routes->match(['get', 'options'], '/api/test/ping', 'Api\Test::ping');
 $routes->match(['post', 'options'], '/api/status/rewrite', 'Api\Status::rewrite');
 $routes->match(['post', 'options'], '/api/images/alttext', 'Api\Images::alttext');
+$routes->match(['post', 'options'], '/api/images/describe', 'Api\Images::describe');
 
 // Command line routes
 $routes->cli('cli/test/index/(:segment)', 'CLI\Test::index/$1');
