@@ -37,6 +37,12 @@
                         <li class="py-1"><a href="#status-rewrite" class="text-decoration-none font-monospace small">POST /api/status/rewrite</a></li>
                     </ul>
                 </li>
+                <li class="py-1">
+                    <span class="text-secondary">Tags</span>
+                    <ul class="list-unstyled ms-3 mt-1">
+                        <li class="py-1"><a href="#tags-generate" class="text-decoration-none font-monospace small">POST /api/tags/generate</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
@@ -558,6 +564,85 @@
     "Server load is elevated at the moment, which may cause some requests to be slower than normal.",
     "Things are a bit busy on the server side, so you may notice some requests taking longer.",
     "High server load is affecting response times — some requests may be slower than expected."
+  ]
+}</code></pre>
+        </div>
+    </div>
+
+    <!-- Tags endpoints -->
+    <h5 id="tags" class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Tags</h5>
+
+    <!-- POST /api/tags/generate -->
+    <div id="tags-generate" class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-primary font-monospace fs-6">POST</span>
+            <code class="fs-6">/api/tags/generate</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Reads the given text and suggests a list of relevant tags suitable for use on a blog or social media platform. Each tag is lowercase and contains no spaces. Between 5 and 15 tags are returned depending on the content.</p>
+
+            <h6 class="fw-semibold mt-3 mb-2">Request body <span class="badge text-bg-secondary fw-normal ms-1">application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:120px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th style="width:100px">Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">text</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-danger">Yes</span></td>
+                        <td>The text to generate hashtags for. Can be a blog post, social media update, or any other body of text.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">model</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Ollama model to use. Defaults to <code>llama3.2</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">tags</td>
+                        <td class="text-secondary">string[]</td>
+                        <td>An array of suggested tags.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/tags/generate \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d '{"text": "CodeIgniter 4 is a lightweight PHP framework that makes building web applications fast and straightforward. In this post we cover routing, controllers, and connecting to a MySQL database."}' \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "tags": [
+    "php",
+    "codeigniter",
+    "development",
+    "framework",
+    "mysql",
+    "backend",
+    "routing",
+    "tutorial"
   ]
 }</code></pre>
         </div>
