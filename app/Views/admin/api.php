@@ -32,6 +32,90 @@
         </div>
     </div>
 
+    <!-- Images endpoints -->
+    <h5 class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Images</h5>
+
+    <!-- POST /api/images/alttext -->
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-primary font-monospace fs-6">POST</span>
+            <code class="fs-6">/api/images/alttext</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Generates alt text for an image using a vision model via Ollama. Accepts either a publicly accessible image URL or a base64-encoded image. Returns a concise, accessibility-focused description suitable for use as an HTML <code>alt</code> attribute.</p>
+
+            <h6 class="fw-semibold mt-3 mb-2">Request body <span class="badge text-bg-secondary fw-normal ms-1">application/json</span></h6>
+            <p class="text-secondary small mb-2">Provide either <code>url</code> or <code>image</code> — at least one is required.</p>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:120px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th style="width:100px">Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">url</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-warning text-dark">Either</span></td>
+                        <td>A publicly accessible URL of the image to describe. Must use <code>http</code> or <code>https</code>.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">image</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-warning text-dark">Either</span></td>
+                        <td>A base64-encoded image. Data URI prefix (e.g. <code>data:image/png;base64,</code>) is accepted and stripped automatically.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">model</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Ollama vision model to use. Defaults to <code>llama3.2-vision</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">alt_text</td>
+                        <td class="text-secondary">string</td>
+                        <td>A concise description of the image, suitable for an HTML <code>alt</code> attribute.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request — URL</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/images/alttext \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d '{"url": "https://example.com/photo.jpg"}' \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example request — base64</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/images/alttext \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d "{\"image\": \"$(base64 -i photo.jpg)\"}" \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "alt_text": "A tabby cat sitting on a wooden windowsill looking out at a rain-covered street."
+}</code></pre>
+        </div>
+    </div>
+
     <!-- Status endpoints -->
     <h5 class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Status</h5>
 
