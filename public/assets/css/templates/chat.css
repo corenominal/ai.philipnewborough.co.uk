@@ -305,6 +305,23 @@ pre:hover .copy-code-btn {
     }
 }
 
+/* ===== STREAMING CURSOR ===== */
+.streaming-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 0.9em;
+    background-color: currentColor;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    opacity: 0.7;
+    animation: cursorBlink 0.8s step-end infinite;
+}
+
+@keyframes cursorBlink {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 0; }
+}
+
 /* ===== INPUT AREA ===== */
 .chat-input-wrapper {
     max-width: 800px;

@@ -307,7 +307,7 @@ async function sendMessage() {
 
     isStreaming    = true;
     userScrolledUp = false;
-    sendBtn.disabled = true;
+    updateSendBtn();
 
     messageInput.value = '';
     autoResizeTextarea();
@@ -389,6 +389,9 @@ async function sendMessage() {
                     }
                     assistantContent += parsed.content;
                     bubble.innerHTML = renderBubbleHtml(assistantContent, true);
+                    const cursor = document.createElement('span');
+                    cursor.className = 'streaming-cursor';
+                    bubble.appendChild(cursor);
                     if (!userScrolledUp) scrollToBottom();
                 }
             }
@@ -753,7 +756,13 @@ function autoResizeTextarea() {
 }
 
 function updateSendBtn() {
-    sendBtn.disabled = !messageInput.value.trim() || isStreaming;
+    if (isStreaming) {
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+    } else {
+        sendBtn.disabled = !messageInput.value.trim();
+        sendBtn.innerHTML = '<i class="bi bi-arrow-up-short fs-5"></i>';
+    }
 }
 
 function escHtml(str) {
