@@ -186,6 +186,13 @@ class ChatApi extends BaseController
                                      ->orderBy('id', 'ASC')
                                      ->findAll();
 
+        foreach ($messages as &$msg) {
+            $msg['images'] = isset($msg['images']) && $msg['images'] !== null
+                ? (json_decode($msg['images'], true) ?? [])
+                : [];
+        }
+        unset($msg);
+
         return $this->response->setJSON(['session' => $session, 'messages' => $messages]);
     }
 
@@ -206,8 +213,9 @@ class ChatApi extends BaseController
         $sessionUuid = $body['session_uuid'] ?? null;
         $userMessage = trim($body['message'] ?? '');
         $model       = $body['model'] ?? 'llama3.2';
+        $images      = is_array($body['images'] ?? null) ? $body['images'] : [];
 
-        if (empty($userMessage)) {
+        if (empty($userMessage) && empty($images)) {
             echo "event: error\ndata: " . json_encode(['error' => 'Empty message']) . "\n\n";
             flush();
             exit;
@@ -220,7 +228,9 @@ class ChatApi extends BaseController
 
         if (!$session) {
             $sessionUuid = $this->generateUuid();
-            $title       = mb_substr($userMessage, 0, 60) . (mb_strlen($userMessage) > 60 ? '…' : '');
+            $title       = !empty($userMessage)
+                ? mb_substr($userMessage, 0, 60) . (mb_strlen($userMessage) > 60 ? '…' : '')
+                : 'Image';
 
             $sessionModel->insert([
                 'uuid'   => $sessionUuid,
@@ -242,12 +252,27 @@ class ChatApi extends BaseController
             'session_id' => $session['id'],
             'role'       => 'user',
             'content'    => $userMessage,
+            'images'     => !empty($images) ? json_encode($images) : null,
         ]);
 
         $history  = $messageModel->where('session_id', $session['id'])
                                   ->orderBy('id', 'ASC')
                                   ->findAll();
-        $messages = array_map(fn($m) => ['role' => $m['role'], 'content' => $m['content']], $history);
+        $messages = array_map(function ($m) {
+            $msg = ['role' => $m['role'], 'content' => $m['content']];
+            if (!empty($m['images'])) {
+                $stored = json_decode($m['images'], true);
+                if (is_array($stored) && count($stored) > 0) {
+                    $msg['images'] = array_map(function ($dataUrl) {
+                        if (preg_match('/^data:[^;]+;base64,(.+)$/', $dataUrl, $matches)) {
+                            return $matches[1];
+                        }
+                        return $dataUrl;
+                    }, $stored);
+                }
+            }
+            return $msg;
+        }, $history);
 
         echo "event: session\ndata: " . json_encode(['uuid' => $sessionUuid, 'title' => $session['title']]) . "\n\n";
         flush();

@@ -4,11 +4,13 @@
 let currentSessionUuid = null;
 let isStreaming         = false;
 let userScrolledUp     = false;
+let pendingImages      = []; // [{dataUrl, base64, name}]
 
 // ===== DOM REFS =====
 let messagesArea, chatThread, welcomeScreen;
 let messageInput, sendBtn, chatList, modelSelect, newChatBtn, searchBtn;
 let searchModal, searchInput, searchResults;
+let attachBtn, imageInput, imagePreviewArea;
 let searchDebounceTimer = null;
 
 // ===== INIT =====
@@ -26,12 +28,18 @@ document.addEventListener('DOMContentLoaded', () => {
     searchResults = document.getElementById('search-results');
     searchModal   = bootstrap.Modal.getOrCreateInstance(document.getElementById('searchModal'));
 
+    attachBtn        = document.getElementById('attach-btn');
+    imageInput       = document.getElementById('image-input');
+    imagePreviewArea = document.getElementById('image-preview-area');
+
     messageInput.addEventListener('input', onInputChange);
     messageInput.addEventListener('keydown', onKeyDown);
     sendBtn.addEventListener('click', sendMessage);
     newChatBtn.addEventListener('click', startNewChat);
     modelSelect.addEventListener('change', () => localStorage.setItem('chat_model', modelSelect.value));
     searchBtn.addEventListener('click', openSearchModal);
+    attachBtn.addEventListener('click', () => imageInput.click());
+    imageInput.addEventListener('change', handleFileSelect);
 
     document.getElementById('searchModal').addEventListener('shown.bs.modal', () => searchInput.focus());
     document.getElementById('searchModal').addEventListener('hidden.bs.modal', () => {
@@ -296,18 +304,22 @@ function renderMessages(messages) {
     chatThread.classList.remove('d-none');
     chatThread.innerHTML = '';
 
-    messages.forEach(msg => appendMessage(msg.role, msg.content, false, { model: msg.model, created_at: msg.created_at }));
+    messages.forEach(msg => appendMessage(msg.role, msg.content, false, { model: msg.model, created_at: msg.created_at }, msg.images || []));
     scrollToBottom(true);
 }
 
 // ===== SEND MESSAGE =====
 async function sendMessage() {
     const message = messageInput.value.trim();
-    if (!message || isStreaming) return;
+    if ((!message && pendingImages.length === 0) || isStreaming) return;
 
     isStreaming    = true;
     userScrolledUp = false;
     updateSendBtn();
+
+    const imagesToSend = [...pendingImages];
+    pendingImages = [];
+    renderImagePreview();
 
     messageInput.value = '';
     autoResizeTextarea();
@@ -315,7 +327,7 @@ async function sendMessage() {
     welcomeScreen.classList.add('d-none');
     chatThread.classList.remove('d-none');
 
-    appendMessage('user', message);
+    appendMessage('user', message, true, null, imagesToSend.map(img => img.dataUrl));
 
     const assistantDiv = document.createElement('div');
     assistantDiv.className = 'message message-assistant';
@@ -335,6 +347,7 @@ async function sendMessage() {
                 session_uuid: currentSessionUuid,
                 message,
                 model: modelSelect.value,
+                images: imagesToSend.map(img => img.dataUrl),
             }),
         });
 
@@ -630,13 +643,68 @@ function renderBubbleHtml(raw, streaming = false) {
     return html;
 }
 
+// ===== IMAGE HANDLING =====
+function handleFileSelect(e) {
+    const files = Array.from(e.target.files);
+    e.target.value = '';
+    files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const dataUrl = ev.target.result;
+            pendingImages.push({ dataUrl, base64: dataUrl.split(',')[1], name: file.name });
+            renderImagePreview();
+            updateSendBtn();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function renderImagePreview() {
+    if (pendingImages.length === 0) {
+        imagePreviewArea.classList.add('d-none');
+        imagePreviewArea.innerHTML = '';
+        attachBtn.classList.remove('has-images');
+        return;
+    }
+    imagePreviewArea.classList.remove('d-none');
+    attachBtn.classList.add('has-images');
+    imagePreviewArea.innerHTML = '';
+    pendingImages.forEach((img, idx) => {
+        const item    = document.createElement('div');
+        item.className = 'image-preview-item';
+        const imgEl   = document.createElement('img');
+        imgEl.src     = img.dataUrl;
+        imgEl.alt     = img.name;
+        const rmBtn   = document.createElement('button');
+        rmBtn.className = 'image-preview-remove';
+        rmBtn.type      = 'button';
+        rmBtn.title     = 'Remove';
+        rmBtn.innerHTML = '<i class="bi bi-x"></i>';
+        rmBtn.addEventListener('click', () => {
+            pendingImages.splice(idx, 1);
+            renderImagePreview();
+            updateSendBtn();
+        });
+        item.appendChild(imgEl);
+        item.appendChild(rmBtn);
+        imagePreviewArea.appendChild(item);
+    });
+}
+
 // ===== HELPERS =====
-function appendMessage(role, content, animate = true, meta = null) {
+function appendMessage(role, content, animate = true, meta = null, images = []) {
     const div = document.createElement('div');
     div.className = `message message-${role}`;
 
     if (role === 'user') {
-        div.innerHTML = `<div class="message-bubble">${escHtml(content)}</div>`;
+        let imagesHtml = '';
+        if (images.length > 0) {
+            imagesHtml = '<div class="message-images">' +
+                images.map(src => `<img class="message-image" src="${escHtml(src)}" alt="Attached image" loading="lazy">`).join('') +
+                '</div>';
+        }
+        div.innerHTML = `<div class="message-bubble">${imagesHtml}${content ? escHtml(content) : ''}</div>`;
     } else {
         const bubble = document.createElement('div');
         bubble.className = 'message-bubble';
@@ -760,7 +828,7 @@ function updateSendBtn() {
         sendBtn.disabled = true;
         sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
     } else {
-        sendBtn.disabled = !messageInput.value.trim();
+        sendBtn.disabled = !messageInput.value.trim() && pendingImages.length === 0;
         sendBtn.innerHTML = '<i class="bi bi-arrow-up-short fs-5"></i>';
     }
 }

@@ -11,7 +11,7 @@ class ChatMessageModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-    protected $allowedFields    = ['session_id', 'role', 'model', 'content'];
+    protected $allowedFields    = ['session_id', 'role', 'model', 'content', 'images'];
     protected $useTimestamps    = true;
     protected $createdField     = 'created_at';
     protected $updatedField     = '';

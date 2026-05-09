@@ -13,17 +13,24 @@
 </div>
 
 <div id="input-area" class="flex-shrink-0 border-top px-3 py-3">
-    <div class="chat-input-wrapper position-relative mx-auto">
-        <textarea
-            id="message-input"
-            class="form-control chat-textarea pe-5"
-            placeholder="Message…"
-            rows="1"
-            aria-label="Chat message"
-        ></textarea>
-        <button id="send-btn" class="btn btn-primary chat-send-btn" disabled aria-label="Send message">
-            <i class="bi bi-arrow-up-short fs-5"></i>
-        </button>
+    <input type="file" id="image-input" accept="image/*" multiple style="display:none">
+    <div class="chat-input-wrapper mx-auto">
+        <div id="image-preview-area" class="image-preview-area d-none mb-2"></div>
+        <div class="position-relative">
+            <button id="attach-btn" class="btn chat-attach-btn" type="button" title="Attach image" aria-label="Attach image">
+                <i class="bi bi-paperclip"></i>
+            </button>
+            <textarea
+                id="message-input"
+                class="form-control chat-textarea"
+                placeholder="Message…"
+                rows="1"
+                aria-label="Chat message"
+            ></textarea>
+            <button id="send-btn" class="btn btn-primary chat-send-btn" disabled aria-label="Send message">
+                <i class="bi bi-arrow-up-short fs-5"></i>
+            </button>
+        </div>
     </div>
     <p class="text-center text-secondary small mt-2 mb-0">
         <small>Press <kbd>Enter</kbd> to send &middot; <kbd>Shift+Enter</kbd> for new line</small>
