@@ -8,8 +8,40 @@
         <p class="text-secondary mb-0 mt-1">Available API endpoints for external integrations.</p>
     </div>
 
-    <!-- Authentication -->
+    <!-- Table of contents -->
     <div class="card mb-4">
+        <div class="card-header fw-semibold">
+            <i class="bi bi-list-ul me-2"></i>Contents
+        </div>
+        <div class="card-body py-2">
+            <ul class="list-unstyled mb-0">
+                <li class="py-1"><a href="#authentication" class="text-decoration-none">Authentication</a></li>
+                <li class="py-1">
+                    <span class="text-secondary">Blog</span>
+                    <ul class="list-unstyled ms-3 mt-1">
+                        <li class="py-1"><a href="#blog-analyse" class="text-decoration-none font-monospace small">POST /api/blog/analyse</a></li>
+                        <li class="py-1"><a href="#blog-rewrite" class="text-decoration-none font-monospace small">POST /api/blog/rewrite</a></li>
+                    </ul>
+                </li>
+                <li class="py-1">
+                    <span class="text-secondary">Images</span>
+                    <ul class="list-unstyled ms-3 mt-1">
+                        <li class="py-1"><a href="#images-alttext" class="text-decoration-none font-monospace small">POST /api/images/alttext</a></li>
+                        <li class="py-1"><a href="#images-describe" class="text-decoration-none font-monospace small">POST /api/images/describe</a></li>
+                    </ul>
+                </li>
+                <li class="py-1">
+                    <span class="text-secondary">Status</span>
+                    <ul class="list-unstyled ms-3 mt-1">
+                        <li class="py-1"><a href="#status-rewrite" class="text-decoration-none font-monospace small">POST /api/status/rewrite</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Authentication -->
+    <div id="authentication" class="card mb-4">
         <div class="card-header fw-semibold">
             <i class="bi bi-shield-lock-fill me-2"></i>Authentication
         </div>
@@ -32,11 +64,190 @@
         </div>
     </div>
 
+    <!-- Blog endpoints -->
+    <h5 id="blog" class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Blog</h5>
+
+    <!-- POST /api/blog/analyse -->
+    <div id="blog-analyse" class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-primary font-monospace fs-6">POST</span>
+            <code class="fs-6">/api/blog/analyse</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Analyses a blog post using Ollama and returns a concise summary of the content along with actionable suggestions for improvement across areas such as structure, clarity, tone, SEO, and accessibility.</p>
+
+            <h6 class="fw-semibold mt-3 mb-2">Request body <span class="badge text-bg-secondary fw-normal ms-1">application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:120px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th style="width:100px">Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">content</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-danger">Yes</span></td>
+                        <td>The full body text of the blog post. Plain text or HTML are both accepted.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">title</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>The title of the blog post. Including it improves the quality of the analysis.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">model</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Ollama model to use. Defaults to <code>llama3.2</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">summary</td>
+                        <td class="text-secondary">string</td>
+                        <td>A concise 2–3 sentence description of the blog post and its main points.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">suggestions</td>
+                        <td class="text-secondary">object[]</td>
+                        <td>An array of improvement suggestions. Each object has an <code>area</code> field (e.g. <code>Clarity</code>, <code>SEO</code>, <code>Structure</code>) and a <code>suggestion</code> field with an actionable recommendation.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/blog/analyse \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d '{"title": "Getting started with CodeIgniter 4", "content": "CodeIgniter 4 is a lightweight PHP framework..."}' \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "summary": "This post introduces CodeIgniter 4 as a lightweight PHP framework suited to developers who want speed without complexity. It covers installation, routing basics, and connecting to a database. The tone is beginner-friendly but assumes some prior PHP knowledge.",
+  "suggestions": [
+    {
+      "area": "Structure",
+      "suggestion": "Add a table of contents at the top — the post covers several distinct topics and readers would benefit from being able to jump to the section most relevant to them."
+    },
+    {
+      "area": "SEO",
+      "suggestion": "The title is generic. Consider something more specific such as 'Getting started with CodeIgniter 4: routing, controllers, and your first database query' to improve search visibility."
+    },
+    {
+      "area": "Clarity",
+      "suggestion": "The database section jumps straight into code without explaining what the example is trying to achieve. A one-sentence introduction before each code block would help readers follow along."
+    },
+    {
+      "area": "Tone",
+      "suggestion": "Some paragraphs switch between second and third person. Pick one and apply it consistently throughout."
+    }
+  ]
+}</code></pre>
+        </div>
+    </div>
+
+    <!-- POST /api/blog/rewrite -->
+    <div id="blog-rewrite" class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-primary font-monospace fs-6">POST</span>
+            <code class="fs-6">/api/blog/rewrite</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Rewrites a blog post to fix typos, spelling mistakes, grammar errors, and punctuation issues, and to improve sentence flow and readability. The author's original style, voice, and tone are preserved throughout. No new information is added and the structure is kept intact.</p>
+            <p>If a <code>title</code> is supplied, the model will also rewrite the title if it can be improved and return it alongside the content.</p>
+
+            <h6 class="fw-semibold mt-3 mb-2">Request body <span class="badge text-bg-secondary fw-normal ms-1">application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:120px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th style="width:100px">Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">content</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-danger">Yes</span></td>
+                        <td>The full body text of the blog post to rewrite. Plain text or HTML are both accepted.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">title</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>The title of the blog post. If provided, the model will also return a rewritten title in the response.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">model</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Ollama model to use. Defaults to <code>llama3.2</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">content</td>
+                        <td class="text-secondary">string</td>
+                        <td>The rewritten blog post body.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">title</td>
+                        <td class="text-secondary">string</td>
+                        <td>The rewritten title. Only present in the response when a <code>title</code> was included in the request.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/blog/rewrite \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d '{"title": "My thorts on PHP", "content": "PHP is somtimes underrated. I been using it for years and find it realy versitile..."}' \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "title": "My thoughts on PHP",
+  "content": "PHP is sometimes underrated. I've been using it for years and find it really versatile..."
+}</code></pre>
+        </div>
+    </div>
+
     <!-- Images endpoints -->
-    <h5 class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Images</h5>
+    <h5 id="images" class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Images</h5>
 
     <!-- POST /api/images/alttext -->
-    <div class="card mb-4">
+    <div id="images-alttext" class="card mb-4">
         <div class="card-header d-flex align-items-center gap-3">
             <span class="badge text-bg-primary font-monospace fs-6">POST</span>
             <code class="fs-6">/api/images/alttext</code>
@@ -117,7 +328,7 @@
     </div>
 
     <!-- POST /api/images/describe -->
-    <div class="card mb-4">
+    <div id="images-describe" class="card mb-4">
         <div class="card-header d-flex align-items-center gap-3">
             <span class="badge text-bg-primary font-monospace fs-6">POST</span>
             <code class="fs-6">/api/images/describe</code>
@@ -191,10 +402,10 @@
     </div>
 
     <!-- Status endpoints -->
-    <h5 class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Status</h5>
+    <h5 id="status" class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Status</h5>
 
     <!-- POST /api/status/rewrite -->
-    <div class="card mb-4">
+    <div id="status-rewrite" class="card mb-4">
         <div class="card-header d-flex align-items-center gap-3">
             <span class="badge text-bg-primary font-monospace fs-6">POST</span>
             <code class="fs-6">/api/status/rewrite</code>
