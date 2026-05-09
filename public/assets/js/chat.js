@@ -701,7 +701,7 @@ function appendMessage(role, content, animate = true, meta = null, images = []) 
         let imagesHtml = '';
         if (images.length > 0) {
             imagesHtml = '<div class="message-images">' +
-                images.map(src => `<img class="message-image" src="${escHtml(src)}" alt="Attached image" loading="lazy">`).join('') +
+                images.map(src => `<img class="message-image mb-2" src="${escHtml(src)}" alt="Attached image" loading="lazy">`).join('') +
                 '</div>';
         }
         div.innerHTML = `<div class="message-bubble">${imagesHtml}${content ? escHtml(content) : ''}</div>`;
