@@ -87,7 +87,7 @@ PROMPT;
             : '{"content": "..."}';
 
         $prompt = <<<PROMPT
-Rewrite the following blog post to fix any typos, spelling mistakes, grammar errors, and punctuation issues. Improve sentence flow and readability where needed, but preserve the author's original style, voice, and tone throughout. Do not add new information, change the meaning, or significantly alter the structure.
+Rewrite the following blog post to fix any typos, spelling mistakes, grammar errors, and punctuation issues. Improve sentence flow and readability where needed, but preserve the author's original style, voice, and tone throughout. Do not add new information, change the meaning, or significantly alter the structure. Do not use em dashes (—) anywhere in the rewritten text; use commas, semicolons, or restructure the sentence instead.
 
 {$titleInstruction}
 Return only valid JSON in this exact format: {$responseFormat}
