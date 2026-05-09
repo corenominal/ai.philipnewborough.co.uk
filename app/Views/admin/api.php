@@ -44,6 +44,12 @@
                         <li class="py-1"><a href="#tags-generate" class="text-decoration-none font-monospace small">POST /api/tags/generate</a></li>
                     </ul>
                 </li>
+                <li class="py-1">
+                    <span class="text-secondary">Ollama</span>
+                    <ul class="list-unstyled ms-3 mt-1">
+                        <li class="py-1"><a href="#ollama-list" class="text-decoration-none font-monospace small">GET /api/ollama/list</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
@@ -754,6 +760,53 @@
     "backend",
     "routing",
     "tutorial"
+  ]
+}</code></pre>
+        </div>
+    </div>
+
+
+    <!-- Ollama endpoints -->
+    <h5 id="ollama" class="text-secondary text-uppercase fw-semibold mb-3" style="font-size:0.75rem;letter-spacing:.08em">Ollama</h5>
+
+    <!-- GET /api/ollama/list -->
+    <div id="ollama-list" class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-success font-monospace fs-6">GET</span>
+            <code class="fs-6">/api/ollama/list</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Returns a sorted list of model names currently available on the Ollama instance. Useful for populating model selection interfaces or verifying that a specific model is installed before making a generation request.</p>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">models</td>
+                        <td class="text-secondary">string[]</td>
+                        <td>A sorted array of available model name strings (e.g. <code>llama3.2</code>, <code>llama3.2-vision</code>).</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s <?= rtrim(base_url(), '/') ?>/api/ollama/list \
+  -H "apikey: &lt;your-api-key&gt;" \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "models": [
+    "llama3.2",
+    "llama3.2-vision",
+    "mistral"
   ]
 }</code></pre>
         </div>
