@@ -201,6 +201,76 @@ PROMPT;
         return $this->response->setJSON(['excerpt' => $response['excerpt']]);
     }
 
+    public function creative(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $body    = $this->request->getJSON(true) ?? [];
+        $content = trim($body['content'] ?? '');
+        $title   = trim($body['title'] ?? '');
+        $model   = $body['model'] ?? 'llama3.2';
+
+        if (empty($content)) {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'No content provided.']);
+        }
+
+        $titleInstruction = $title
+            ? "Also rewrite the title to better reflect the new tone, and include it in the response as \"title\".\nTitle: {$title}\n"
+            : "Do not include a \"title\" field in the response.\n";
+
+        $responseFormat = $title
+            ? '{"title": "...", "content": "..."}'
+            : '{"content": "..."}';
+
+        $prompt = <<<PROMPT
+Rewrite the following blog post to make it more engaging, vivid, and compelling. Elevate the language with stronger word choices and more varied sentence structure. Draw the reader in from the first sentence and keep the writing energetic throughout. Preserve the core meaning and factual content of the original.
+
+Do not use emojis. Do not use em dashes (—); use commas or restructure the sentence instead. Use colons and semicolons sparingly, only where they genuinely improve clarity.
+
+{$titleInstruction}
+Return only valid JSON in this exact format: {$responseFormat}
+Do not include any markdown in field values.
+
+Content:
+{$content}
+PROMPT;
+
+        $ollamaIp = config('Ollama')->ip;
+        $payload  = json_encode([
+            'model'  => $model,
+            'prompt' => $prompt,
+            'format' => 'json',
+            'stream' => false,
+        ]);
+
+        $context = stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => "Content-Type: application/json\r\n",
+                'content' => $payload,
+                'timeout' => 120,
+            ],
+        ]);
+
+        $result = @file_get_contents("http://{$ollamaIp}:11434/api/generate", false, $context);
+
+        if ($result === false) {
+            return $this->response->setStatusCode(502)->setJSON(['error' => 'Failed to connect to Ollama.']);
+        }
+
+        $data     = json_decode($result, true);
+        $response = json_decode($data['response'] ?? '{}', true);
+
+        if (empty($response['content'])) {
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'Unexpected response from Ollama.']);
+        }
+
+        $output = ['content' => $response['content']];
+        if ($title && !empty($response['title'])) {
+            $output['title'] = $response['title'];
+        }
+
+        return $this->response->setJSON($output);
+    }
+
     public function outline(): \CodeIgniter\HTTP\ResponseInterface
     {
         $body  = $this->request->getJSON(true) ?? [];

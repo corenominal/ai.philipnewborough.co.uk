@@ -21,6 +21,7 @@
                     <ul class="list-unstyled ms-3 mt-1">
                         <li class="py-1"><a href="#blog-analyse" class="text-decoration-none font-monospace small">POST /api/blog/analyse</a></li>
                         <li class="py-1"><a href="#blog-rewrite" class="text-decoration-none font-monospace small">POST /api/blog/rewrite</a></li>
+                        <li class="py-1"><a href="#blog-creative" class="text-decoration-none font-monospace small">POST /api/blog/creative</a></li>
                         <li class="py-1"><a href="#blog-excerpt" class="text-decoration-none font-monospace small">POST /api/blog/excerpt</a></li>
                         <li class="py-1"><a href="#blog-outline" class="text-decoration-none font-monospace small">POST /api/blog/outline</a></li>
                     </ul>
@@ -253,6 +254,86 @@
             <pre class="rounded p-3 mb-4 text-wrap"><code>{
   "title": "My thoughts on PHP",
   "content": "PHP is sometimes underrated. I've been using it for years and find it really versatile..."
+}</code></pre>
+        </div>
+    </div>
+
+    <!-- POST /api/blog/creative -->
+    <div id="blog-creative" class="card mb-4">
+        <div class="card-header d-flex align-items-center gap-3">
+            <span class="badge text-bg-primary font-monospace fs-6">POST</span>
+            <code class="fs-6">/api/blog/creative</code>
+        </div>
+        <div class="card-body pb-0">
+            <p>Rewrites a blog post to make it more engaging, vivid, and compelling. The model elevates the language with stronger word choices and more varied sentence structure, drawing the reader in from the first sentence and keeping the writing energetic throughout. The core meaning and factual content of the original are preserved. No emojis or em-dashes are used.</p>
+            <p>If a <code>title</code> is supplied, the model will also rewrite the title to better reflect the new tone and return it alongside the content.</p>
+
+            <h6 class="fw-semibold mt-3 mb-2">Request body <span class="badge text-bg-secondary fw-normal ms-1">application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:120px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th style="width:100px">Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">content</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-danger">Yes</span></td>
+                        <td>The full body text of the blog post to rewrite. Plain text or HTML are both accepted.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">title</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>The title of the blog post. If provided, the model will also return a rewritten title in the response.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">model</td>
+                        <td class="text-secondary">string</td>
+                        <td><span class="badge text-bg-secondary">No</span></td>
+                        <td>Ollama model to use. Defaults to <code>llama3.2</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Response <span class="badge text-bg-secondary fw-normal ms-1">200 application/json</span></h6>
+            <table class="table table-sm table-bordered mb-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:140px">Field</th>
+                        <th style="width:100px">Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-monospace">content</td>
+                        <td class="text-secondary">string</td>
+                        <td>The creatively rewritten blog post body.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-monospace">title</td>
+                        <td class="text-secondary">string</td>
+                        <td>The rewritten title. Only present in the response when a <code>title</code> was included in the request.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Example request</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>curl -s -X POST <?= rtrim(base_url(), '/') ?>/api/blog/creative \
+  -H "Content-Type: application/json" \
+  -H "apikey: &lt;your-api-key&gt;" \
+  -d '{"title": "My thoughts on PHP", "content": "PHP is often underrated. I have been using it for years and find it very versatile for building web applications of all sizes."}' \
+  | jq</code></pre>
+
+            <h6 class="fw-semibold mb-2">Example response</h6>
+            <pre class="rounded p-3 mb-4 text-wrap"><code>{
+  "title": "In defence of PHP: why the underdog still wins",
+  "content": "PHP gets a bad reputation it has long since stopped deserving. After years of building everything from scrappy side projects to full-scale web applications with it, I keep arriving at the same conclusion: nothing else comes close for sheer versatility."
 }</code></pre>
         </div>
     </div>

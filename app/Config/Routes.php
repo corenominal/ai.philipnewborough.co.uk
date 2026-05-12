@@ -33,6 +33,7 @@ $routes->match(['post', 'options'], '/api/images/describe', 'Api\Images::describ
 $routes->match(['post', 'options'], '/api/blog/analyse', 'Api\Blog::analyse');
 $routes->match(['post', 'options'], '/api/blog/rewrite', 'Api\Blog::rewrite');
 $routes->match(['post', 'options'], '/api/blog/excerpt', 'Api\Blog::excerpt');
+$routes->match(['post', 'options'], '/api/blog/creative', 'Api\Blog::creative');
 $routes->match(['post', 'options'], '/api/blog/outline', 'Api\Blog::outline');
 $routes->match(['post', 'options'], '/api/tags/generate', 'Api\Tags::generate');
 $routes->match(['get', 'options'], '/api/ollama/list', 'Api\Ollama::list');
