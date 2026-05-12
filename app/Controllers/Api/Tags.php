@@ -53,6 +53,10 @@ PROMPT;
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Unexpected response from Ollama.']);
         }
 
-        return $this->response->setJSON(['tags' => array_values($response['tags'])]);
+        $tags = array_values(array_filter(array_map(function (string $tag): string {
+            return preg_replace('/[^a-z0-9]/', '', strtolower($tag));
+        }, $response['tags'])));
+
+        return $this->response->setJSON(['tags' => $tags]);
     }
 }
