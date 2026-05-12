@@ -227,7 +227,6 @@ Do not use emojis. Do not use em dashes (—); use commas or restructure the sen
 
 {$titleInstruction}
 Return only valid JSON in this exact format: {$responseFormat}
-Do not include any markdown in field values.
 
 Content:
 {$content}
